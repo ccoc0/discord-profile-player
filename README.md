@@ -11,9 +11,11 @@ A Discord-inspired profile page based on the screenshots you shared. It uses you
 
 Opening `index.html` directly from File Explorer uses a `file://` address. YouTube requires an HTTP referrer for embedded playback, so it can show error 153 from a local file. The page displays a reminder when opened that way. The player and Bootstrap need an internet connection.
 
+The embedded player uses YouTube's IFrame Player API. If a playlist track is unavailable or does not allow embedding, it tries the next track; **Next track** also skips manually. Some videos may still only play from YouTube Music, so the direct playlist link is included in the player header.
+
 ## Files
 
-- `index.html` — profile content and playlist embed.
+- `index.html` — profile content and YouTube player setup.
 - `styles.css` — page styling and responsive layout.
 - `coco-avatar.png` — your profile picture.
 

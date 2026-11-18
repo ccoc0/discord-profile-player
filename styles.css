@@ -387,6 +387,13 @@
         background: #090a0c;
       }
 
+      .player-frame #youtube-player,
+      .player-frame iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
       .player-footer {
         display: flex;
         align-items: center;
@@ -396,6 +403,19 @@
         color: #8e939e;
         font-size: .7rem;
       }
+
+      .player-skip {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #b5bcff;
+        font: inherit;
+        font-size: .7rem;
+        font-weight: 650;
+        cursor: pointer;
+      }
+
+      .player-skip:hover { color: #e0e2ff; text-decoration: underline; }
 
       .player-hint {
         margin: 0 18px 16px;
