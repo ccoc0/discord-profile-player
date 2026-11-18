@@ -79,49 +79,66 @@
           <article class="panel music-panel" aria-labelledby="music-title">
             <header class="panel-heading">
               <div class="heading-group">
-                <span class="youtube-mark" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.6 7.9v8.2l7-4.1-7-4.1Z" /></svg>
-                </span>
+                <span class="music-mark" aria-hidden="true">♫</span>
                 <div>
                   <span class="panel-overline">Music</span>
-                  <h2 class="panel-title" id="music-title">Now playing</h2>
+                  <h2 class="panel-title" id="music-title">Your playlist</h2>
                 </div>
               </div>
-              <a
-                class="text-link"
-                href="https://music.youtube.com/playlist?list=PLsL7x8XjUC5o6oz-H9vCZakIHzp1upM-0"
-                target="_blank"
-                rel="noopener noreferrer"
-              >Open in YouTube Music ↗</a>
+              <div class="music-actions">
+                <button class="add-songs-button" id="add-songs-button" type="button">＋ Add songs</button>
+                <a
+                  class="text-link"
+                  href="https://music.youtube.com/playlist?list=PLsL7x8XjUC5o6oz-H9vCZakIHzp1upM-0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >YouTube Music ↗</a>
+              </div>
             </header>
 
-            <div class="playlist-intro">
-              <div class="playlist-art"><img src="coco-avatar.png" alt="" /></div>
-              <div>
-                <h3 class="playlist-title">COCO’s playlist</h3>
-                <div class="playlist-subtitle">YouTube Music · Playlist</div>
-              </div>
-            </div>
+            <input
+              id="song-picker"
+              class="visually-hidden"
+              type="file"
+              accept=".opus,.ogg,.oga,audio/ogg,audio/opus"
+              multiple
+            />
 
-            <div class="player-wrap">
-              <div class="player-frame" aria-label="COCO's YouTube playlist player">
-                <div id="youtube-player" class="youtube-player"></div>
+            <div class="local-player">
+              <div class="track-hero">
+                <div class="album-art-shell">
+                  <img id="main-cover" class="main-cover" alt="" hidden />
+                  <div id="cover-placeholder" class="cover-placeholder" aria-hidden="true">♫</div>
+                </div>
+                <div class="track-details">
+                  <span class="panel-overline" id="track-artist">Local music</span>
+                  <h3 class="playlist-title" id="track-title">Choose your songs</h3>
+                  <div class="playlist-subtitle" id="track-file-name">Your .opus files stay on this device.</div>
+                  <a id="cover-link" class="cover-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View album on Apple Music ↗</a>
+                </div>
               </div>
-            </div>
 
-            <div class="player-footer">
-              <span class="sound-note">
-                <span class="sound-bars" aria-hidden="true"><span></span><span></span><span></span></span>
-                <span id="player-status" aria-live="polite">Loading playlist…</span>
-              </span>
-              <button class="player-skip" id="next-track" type="button">Next track ›</button>
+              <audio id="audio-player" preload="metadata"></audio>
+
+              <div class="player-controls" aria-label="Music controls">
+                <button class="control-button" id="previous-track" type="button" aria-label="Previous track" title="Previous track">◀|</button>
+                <button class="control-button play-button" id="play-pause" type="button" aria-label="Play" title="Play">▶</button>
+                <button class="control-button" id="next-track" type="button" aria-label="Next track" title="Next track">|▶</button>
+                <span class="track-counter" id="track-counter">0 tracks</span>
+              </div>
+
+              <div class="progress-area">
+                <input id="seek-bar" class="seek-bar" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek through track" />
+                <div class="time-labels"><span id="current-time">0:00</span><span id="track-duration">0:00</span></div>
+              </div>
+
+              <p class="library-note" id="library-note" role="status">Choose your .opus files from Downloads. They play locally and are not uploaded.</p>
+              <div class="queue-heading"><span>Playlist</span><span id="queue-count">0</span></div>
+              <div class="track-queue" id="track-queue" role="list" aria-label="Selected songs">
+                <p class="queue-empty">Add songs to build your playlist.</p>
+              </div>
+              <div class="artwork-credit">Album artwork lookup via iTunes · <a href="https://www.apple.com/apple-music/" target="_blank" rel="noopener noreferrer">Apple Music</a></div>
             </div>
-            <p class="player-hint" id="local-file-note" hidden>
-              Open this page with VS Code Live Server to play the embedded playlist. YouTube blocks playback when this page is opened directly from a file.
-            </p>
-            <p class="player-hint" id="embed-error-note" hidden>
-              YouTube may block individual tracks in embedded players. The page will try the next track; use <strong>Open in YouTube Music</strong> if the playlist still cannot play here.
-            </p>
           </article>
 
           <article class="panel game-panel" aria-labelledby="game-title">
@@ -156,102 +173,7 @@
       </div>
     </main>
 
-    <script>
-      const copyButton = document.querySelector("#copy-name");
-      const copyStatus = document.querySelector("#copy-status");
-      const playerStatus = document.querySelector("#player-status");
-      const localFileNote = document.querySelector("#local-file-note");
-      const embedErrorNote = document.querySelector("#embed-error-note");
-      const playlistId = "PLsL7x8XjUC5o6oz-H9vCZakIHzp1upM-0";
-      const autoSkipLimit = 8;
-      let player;
-      let skippedTracks = 0;
-
-      copyButton.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText("cocospells_");
-          copyStatus.textContent = "Username copied: cocospells_";
-        } catch {
-          copyStatus.textContent = "Username: cocospells_";
-        }
-      });
-
-      document.querySelector("#more-button").addEventListener("click", () => {
-        copyStatus.textContent = "COCO · cocospells_";
-      });
-
-      if (window.location.protocol === "file:") {
-        localFileNote.hidden = false;
-        playerStatus.textContent = "Open with Live Server to listen";
-      } else {
-        window.onYouTubeIframeAPIReady = () => {
-          const playerVars = {
-            listType: "playlist",
-            list: playlistId,
-            playsinline: 1,
-            controls: 1,
-            rel: 0,
-          };
-
-          if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-            playerVars.origin = window.location.origin;
-          }
-
-          player = new YT.Player("youtube-player", {
-            playerVars,
-            events: {
-              onReady: () => {
-                playerStatus.textContent = "Ready · press play";
-              },
-              onStateChange: (event) => {
-                if (event.data === YT.PlayerState.PLAYING) {
-                  playerStatus.textContent = "Playing playlist";
-                  embedErrorNote.hidden = true;
-                } else if (event.data === YT.PlayerState.CUED) {
-                  playerStatus.textContent = "Track ready · press play";
-                }
-              },
-              onError: (event) => {
-                if ([100, 101, 150].includes(event.data)) {
-                  embedErrorNote.hidden = false;
-                  if (skippedTracks < autoSkipLimit) {
-                    skippedTracks += 1;
-                    playerStatus.textContent = `Skipping unavailable track (${skippedTracks})…`;
-                    window.setTimeout(() => player.nextVideo(), 700);
-                  } else {
-                    playerStatus.textContent = "Some tracks are unavailable here";
-                  }
-                } else if (event.data === 153) {
-                  localFileNote.hidden = false;
-                  playerStatus.textContent = "Open with Live Server to listen";
-                } else {
-                  embedErrorNote.hidden = false;
-                  playerStatus.textContent = "Open the playlist in YouTube Music";
-                }
-              },
-            },
-          });
-        };
-
-        const youtubeApi = document.createElement("script");
-        youtubeApi.src = "https://www.youtube.com/iframe_api";
-        youtubeApi.async = true;
-        youtubeApi.onerror = () => {
-          playerStatus.textContent = "Open the playlist in YouTube Music";
-          embedErrorNote.hidden = false;
-        };
-        document.head.appendChild(youtubeApi);
-      }
-
-      document.querySelector("#next-track").addEventListener("click", () => {
-        if (player) {
-          player.nextVideo();
-          playerStatus.textContent = "Loading next track…";
-        } else if (window.location.protocol === "file:") {
-          localFileNote.hidden = false;
-        }
-      });
-    </script>
+    <script src="player.js" defer></script>
 
     <!-- Bootstrap's official quick-start JavaScript bundle. -->
     <script

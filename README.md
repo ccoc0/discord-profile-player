@@ -1,22 +1,22 @@
 # COCO profile
 
-A Discord-inspired profile page based on the screenshots you shared. It uses your profile picture, the COCO profile details, a Wuthering Waves stats card, Bootstrap 5.3.9, and your YouTube Music playlist.
+A Discord-inspired profile page based on the screenshots you shared. It uses your profile picture, COCO profile details, a Wuthering Waves stats card, Bootstrap 5.3.9, and a local music player.
 
-## Open in VS Code
+## Add and play your songs
 
-1. Open the `discord-profile-player` folder in VS Code.
-2. To play the embedded playlist, run the page through **Live Server**. If you have the extension, right-click `index.html` and choose **Open with Live Server**.
-3. If Live Server is not installed, open VS Code's terminal in this folder and run `py -m http.server 8000`. Then open `http://localhost:8000` in your browser.
-4. Press play in the YouTube player. The **Open in YouTube Music** link is also above it.
+1. Open the `discord-profile-player` folder in VS Code and run `index.html` with Live Server.
+2. Click **Add songs** and select your `.opus` files from Downloads. You can select all 52 at once.
+3. Click a track in the queue, then use the player controls to play, pause, seek, or skip.
 
-Opening `index.html` directly from File Explorer uses a `file://` address. YouTube requires an HTTP referrer for embedded playback, so it can show error 153 from a local file. The page displays a reminder when opened that way. The player and Bootstrap need an internet connection.
+The audio files stay on your device; the page does not upload them. Cover art is looked up as tracks are shown and linked to the matching Apple Music listing. That lookup needs an internet connection. The **YouTube Music** link still opens your original playlist.
 
-The embedded player uses YouTube's IFrame Player API. If a playlist track is unavailable or does not allow embedding, it tries the next track; **Next track** also skips manually. Some videos may still only play from YouTube Music, so the direct playlist link is included in the player header.
+Opening the HTML directly from File Explorer can prevent the local audio chooser or external cover lookup from working as expected. Use VS Code Live Server for the full experience.
 
 ## Files
 
-- `index.html` — profile content and YouTube player setup.
+- `index.html` — profile markup and player layout.
 - `styles.css` — page styling and responsive layout.
+- `player.js` — local audio controls, playlist queue, and cover art lookup.
 - `coco-avatar.png` — your profile picture.
 
-References: [Bootstrap quick start](https://getbootstrap.com/docs/5.3/getting-started/introduction/) · [YouTube playlist embeds](https://developers.google.com/youtube/player_parameters#Select_content_to_play) · [YouTube embed playback requirements](https://support.google.com/youtube/answer/171780)
+References: [Bootstrap quick start](https://getbootstrap.com/docs/5.3/getting-started/introduction/) · [Apple Search API](https://performance-partners.apple.com/search-api) · [Apple Search API artwork fields](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/UnderstandingSearchResults.html)
